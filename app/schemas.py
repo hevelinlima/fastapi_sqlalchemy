@@ -7,10 +7,10 @@ class NoteBaseSchema(BaseModel):
     id: str | None = None
     title: str
     content: str
-    categories: str | None = None
+    category: str | None = None
     published: bool = False
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    createdAt: datetime | None = None
+    updatedAt: datetime | None = None
 
     class Config:
         orm_model = True
