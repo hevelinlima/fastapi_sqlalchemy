@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class NoteBaseSchema(BaseModel):
     id: str | None = None
     title: str
-    content = str
+    content: str
     categories: str | None = None
     published: bool = False
     created_at: datetime | None = None
@@ -18,7 +18,7 @@ class NoteBaseSchema(BaseModel):
         arbitrary_types_allowed = True
 
 
-class ListNote(BaseModel):
+class ListNoteResponse(BaseModel):
     status: str
     results: int
     notes: List[NoteBaseSchema]

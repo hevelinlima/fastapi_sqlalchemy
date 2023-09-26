@@ -1,3 +1,4 @@
+from datetime import datetime
 from . import schemas, models
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status, APIRouter, Response
@@ -6,7 +7,6 @@ from .database import get_db
 router = APIRouter()
 
 
-# get all records
 @router.get("/")
 def get_notes(
     db: Session = Depends(get_db), limit: int = 10, page: int = 1, search: str = ""
@@ -19,23 +19,19 @@ def get_notes(
         .offset(skip)
         .all()
     )
-    return {"status": "sucess", "results": len(notes), "notes": notes}
+    return {"status": "success", "results": len(notes), "notes": notes}
 
 
-# create record
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_note(payload: schemas.NoteBaseSchema, db: Session = Depends(get_db)):
     new_note = models.Note(**payload.dict())
     db.add(new_note)
     db.commit()
     db.refresh(new_note)
-    return {"status": "success", "notes": new_note}
+    return {"status": "success", "note": new_note}
 
 
-#
-router.patch("/{noteId}")
-
-
+@router.patch("/{noteId}")
 def update_note(
     noteId: str, payload: schemas.NoteBaseSchema, db: Session = Depends(get_db)
 ):
@@ -43,8 +39,8 @@ def update_note(
     db_note = note_query.first()
     if not db_note:
         raise HTTPException(
-            status_code=status.HTTP_400_NOT_FOUND,
-            detail=f"No note with this id: {noteId} found.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No note with this id: {noteId} found",
         )
     update_data = payload.dict(exclude_unset=True)
     note_query.filter(models.Note.id == noteId).update(
@@ -56,7 +52,6 @@ def update_note(
     return {"status": "success", "note": db_note}
 
 
-# get single record
 @router.get("/{noteId}")
 def get_post(noteId: str, db: Session = Depends(get_db)):
     note = db.query(models.Note).filter(models.Note.id == noteId).first()
@@ -68,10 +63,7 @@ def get_post(noteId: str, db: Session = Depends(get_db)):
     return {"status": "success", "note": note}
 
 
-# delete record
-router.delete("/{noteId}")
-
-
+@router.delete("/{noteId}")
 def delete_post(noteId: str, db: Session = Depends(get_db)):
     note_query = db.query(models.Note).filter(models.Note.id == noteId)
     note = note_query.first()
